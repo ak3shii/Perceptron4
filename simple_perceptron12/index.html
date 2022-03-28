@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html ng-app="myFirstApp">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <style>
+      .nxt_btn {
+        position: fixed;
+        top: 0;
+        padding-top: 10px;
+        left: 0;
+        max-width: 10%;
+        height: 100%;
+      }
+      .container {
+        min-height: 900px;
+      }
+      .btn-blue {
+        color: white;
+        background: #070925 !important;
+
+        border-color: none !important;
+      }
+      .btn-blue:hover {
+        background-color: #0430af !important;
+        color: white;
+      }
+      .bg-blue {
+        color: white;
+        background: #070925 !important;
+      }
+      nav a.text-white {
+        color: #9397ff !important;
+      }
+      nav li.active a {
+        color: white !important;
+      }
+      .navbar-brand {
+        color: rgb(0 173 255 / 90%) !important;
+      }
+    </style>
+    <script src="app.js"></script>
+    <title>Online Parceptron Learning</title>
+  </head>
+  <body>
+
+    <div class="container bg-default" ng-controller="MyFirstController">
+      <div class="row">
+        <div class="col-12">
+          <div class="row">
+            <div class="col-12 col-md-3">
+              <div class="form-group">
+                <label>Nombre</label>
+                <input
+                  type="text"
+                  ng-model="network.name"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="form-group">
+                <label for="inputs_num">Numero de entradas</label>
+                <input
+                  ng-disabled="level != 1"
+                  name="inputs_num"
+                  type="number"
+                  ng-model="network.inputs_num"
+                  ng-change="change_input_nums()"
+                  class="form-control"
+                />
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4" ng-show="network.inputs_num > 0">
+              <div class="form-group">
+                <label for="trainings_num">Numero de entrenamiento de muestras</label>
+                <input
+                  ng-disabled="level != 1"
+                  name="trainings_num"
+                  type="number"
+                  ng-model="network.trainings_num"
+                  ng-change="change_trainings_num()"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row" ng-hide="level == 1">
+            <div
+              class="col-6 col-md-3"
+              ng-repeat="input in network.inputs track by $index"
+            >
+              <div class="form-group">
+                <label for="input_name"
+                  >Input {{network.inputs[$index].id}} name
+                </label>
+                <input
+                  name="input_name"
+                  type="text"
+                  ng-disabled="level != 2"
+                  ng-model="network.inputs[$index].name"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row" ng-hide="level == 1">
+            <div
+              class="col-6 col-md-3"
+              ng-repeat="input in network.trainings track by $index"
+            >
+              <div class="form-group">
+                <label for="input_name"
+                  >Nombre entrenamiento de muestra {{network.inputs[$index].id}}
+                </label>
+
+                <input
+                  name="input_name"
+                  type="text"
+                  ng-disabled="level != 2"
+                  ng-model="network.trainings[$index].name"
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="level_3" ng-hide="level < 3">
+            <div class="row">
+              <div class="col-12 col-md-3">
+                <div class="form-group">
+                  <label> Calificacion educacional: </label>
+                  <input
+                    ng-disabled="level != 3"
+                    type="number"
+                    min="0"
+                    max="1"
+                    class="form-control"
+                    ng-model="network.c"
+                  />
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="form-group">
+                  <label> Bias: </label>
+                  <input
+                    ng-disabled="level != 3"
+                    type="number"
+                    class="form-control"
+                    ng-model="network.bias"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="level_4" ng-hide="level < 4">
+            <table class="table table-dark">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th ng-repeat="input in network.inputs">
+                    <label> {{input.name}} </label>
+                  </th>
+                  <th>Salida esperada</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="training in network.trainings track by $index">
+                  <td><label> {{network.trainings[$index].name}} </label></td>
+                  <td
+                    ng-repeat="value in network.trainings[$index].values track by $index"
+                  >
+                    <input
+                      type="number"
+                      class="form-control"
+                      ng-model="training.values[$index]"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      min="0"
+                      max="1"
+                      class="form-control"
+                      ng-model="training.desired"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row mb-5">
+            <div class="col-12">
+              <center>
+                <button
+                  type="button"
+                  class="btn btn-blue"
+                  ng-click="show_results()"
+                  name="button"
+                >
+                  Mostrar procedimiento
+                </button>
+              </center>
+            </div>
+          </div>
+          <div class="level_5 mb-5" ng-hide="level < 5">
+            <button
+              type="button"
+              class="btn btn-blue"
+              ng-click="start_train()"
+              name="button"
+            >
+              Empezar entrenamiento
+            </button>
+          </div>
+          <div class="" ng-show="network.solved">
+            <div class="row">
+              <div class="col-6">
+                Iteraciones hechas: {{network.iterations}}.
+              </div>
+            </div>
+            <div class="mb-5" ng-show="testingDiv">
+              <div class="row">
+                <div
+                  class="col-6 col-md-3"
+                  ng-repeat="testVal in testing.values track by $index"
+                >
+                  <div class="form-group">
+                    <label for="input_name"
+                      >Value of {{network.inputs[$index].name}}
+                    </label>
+                    <input
+                      type="number"
+                      ng-disabled="!testingDiv"
+                      ng-model="testing.values[$index]"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-6">
+                  <button
+                    type="button"
+                    class="btn btn-blue"
+                    ng-click="startTesting()"
+                    name="button"
+                  >
+                    Test
+                  </button>
+                </div>
+              </div>
+              <div class="row" ng-show="testing.finish">
+                <div class="col-6">
+                  <p>The result of the test is: {{testing.output}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="mb-5"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="btn-group col-12">
+          <center>
+            <button
+              type="button"
+              ng-hide="network.solved"
+              ng-disabled="((level == 1) && (network.inputs_num == 0 || network.trainings_num == 0)) || ((level == 3) && (network.c ==0))"
+              name="button"
+              ng-click="nextLevel()"
+              class="btn btn-dark"
+            >
+              Siguiente paso
+            </button>
+            <button type="button" class="btn btn-dark clear_database">
+              Limpiar procesos
+            </button>
+          </center>
+        </div>
+
+
+        <div class="modal" id="details" tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white">Details of training</h5>
+                <button
+                  type="button"
+                  class="close close_modal"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+              </div>
+              <div
+                class="modal-body bg-blue"
+                style="overflow-y: scroll; height: 30rem"
+              >
+                <div class="commands">
+                  <p
+                    class="text-white"
+                    ng-repeat="co in network.commands track by $index"
+                  >
+                    {{co}}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
